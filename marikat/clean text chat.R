@@ -3,6 +3,7 @@ library("tidytext")
 library("tidyr")
 library("rwhatsapp")
 library("lubridate")
+library("stopwords")
 
 #load files
 files <- list.files(pattern = "^[C]")
@@ -24,13 +25,17 @@ for (i in seq_along(data)) {
     d <- d %>% select(time, author, text) %>%
     drop_na() %>%
     filter(text!="<Arquivo de mídia oculto>" & author!=receiver) %>% 
-    unnest_tokens(input = text, output = text, token = "words")
+    unnest_tokens(input = text, output = word, token = "words")
+    #%>% count(author, word, sort = TRUE)
     #%>% rename_with(.cols = text, ~sender) #keeping author col can be useful
     #%>% select(-author)
   data[[i]] <- d
 }
 View(data[[2]])
 View(data[[1]])
+
+to_remove <- c(stopwords(language = "pt"), "pra", "https", "é", "eh")
+m <- data[[2]] %>% filter(!word %in% to_remove)
 
 #p <- tibble(txt = data[[2]])
 t <- data[[1]]
